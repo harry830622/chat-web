@@ -15,6 +15,7 @@ module.exports = {
         development: BABEL_ENV === 'development',
       },
     ],
+    '@emotion/babel-preset-css-prop',
   ],
-  plugins: [],
+  plugins: [['emotion', { sourceMap: BABEL_ENV === 'development' }]],
 };
