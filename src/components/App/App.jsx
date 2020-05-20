@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { css } from '@emotion/core';
+import { Global, css } from '@emotion/core';
+import { Loader } from 'react-feather';
 import { v4 as uuidv4 } from 'uuid';
 
-import SignupForm from './SignupForm';
 import PairForm from './PairForm';
 import ChatRoom from './ChatRoom';
 
@@ -10,29 +10,25 @@ const { WS_URL = 'ws://192.168.0.32:8080' } = process.env;
 
 const App = () => {
   const storedMe = JSON.parse(window.localStorage.getItem('me'));
-  const [me, setMe] = useState(storedMe || { filter: { genderKey: 'A' } });
-  const isLoggedIn = !!me.name;
-  const handleSignupFormSubmit = useCallback((u) => {
+  const [me, setMe] = useState(
+    storedMe || { genderKey: 'F', filter: { genderKey: 'A' } },
+  );
+  const [isPairing, setIsPairing] = useState(false);
+  const handlePairFormChange = useCallback((f) => {
     setMe((prev) => {
-      const nextMe = { ...u, filter: prev.filter };
+      const nextMe = { ...prev, ...f };
       localStorage.setItem('me', JSON.stringify(nextMe));
       return nextMe;
     });
   }, []);
+  const handlePairFormSubmit = useCallback(() => {
+    setIsPairing(true);
+  }, []);
 
-  const [isPairing, setIsPairing] = useState(false);
   const [paired, setPaired] = useState(null);
   const isPaired = !!paired;
   const [sock, setSock] = useState(null);
   const [messageEvents, setMessageEvents] = useState([]);
-  const handlePairFormSubmit = useCallback((f) => {
-    setMe((prev) => {
-      const nextMe = { ...prev, filter: f };
-      localStorage.setItem('me', JSON.stringify(nextMe));
-      return nextMe;
-    });
-    setIsPairing(true);
-  }, []);
   useEffect(() => {
     if (isPairing) {
       const newSock = new WebSocket(WS_URL);
@@ -72,7 +68,8 @@ const App = () => {
         }
       };
     }
-  }, [isPairing, me.name, me.genderKey, me.filter.genderKey]);
+  }, [isPairing, me.genderKey, me.filter.genderKey]);
+
   const handleChatRoomFormSubmit = useCallback(
     (f) => {
       if (sock !== null) {
@@ -98,42 +95,57 @@ const App = () => {
   );
 
   return (
-    <div
-      css={css`
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-      `}
-    >
-      {isLoggedIn ? (
-        isPaired ? (
-          <ChatRoom
-            messageEvents={messageEvents}
-            myId={me.id}
-            onSubmit={handleChatRoomFormSubmit}
-          />
-        ) : (
-          <div
-            css={css`
-              display: flex;
-              flex-direction: column;
-            `}
-          >
-            <header
-              css={css`
-                font-size: 3rem;
-              `}
-            >
-              {me.name}
-            </header>
-            <PairForm filter={me.filter} onSubmit={handlePairFormSubmit} />
-          </div>
-        )
-      ) : (
-        <SignupForm onSubmit={handleSignupFormSubmit} />
-      )}
-    </div>
+    <>
+      <Global
+        styles={css`
+          @keyframes spin {
+            from {
+              transform: rotate(0);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+        `}
+      />
+      <div
+        css={css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+        `}
+      >
+        {(() => {
+          if (isPaired) {
+            return (
+              <ChatRoom
+                messageEvents={messageEvents}
+                myId={me.id}
+                onSubmit={handleChatRoomFormSubmit}
+              />
+            );
+          }
+          if (isPairing) {
+            return (
+              <Loader
+                size={100}
+                css={css`
+                  animation: 1s linear 0s infinite spin;
+                `}
+              />
+            );
+          }
+          return (
+            <PairForm
+              me={me}
+              onChange={handlePairFormChange}
+              onSubmit={handlePairFormSubmit}
+            />
+          );
+        })()}
+      </div>
+    </>
   );
 };
 
