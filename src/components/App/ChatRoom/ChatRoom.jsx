@@ -1,10 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { css } from '@emotion/core';
+import { useTheme } from 'emotion-theming';
 import { ArrowUp, X } from 'react-feather';
 
 const ChatRoom = (props) => {
   const { messageEvents, myId, onSubmit } = props;
+
+  const theme = useTheme();
+
+  const textareaElem = useRef();
 
   const [form, setForm] = useState({ text: '' });
   const handleInputChange = useCallback((e) => {
@@ -16,6 +21,7 @@ const ChatRoom = (props) => {
   }, []);
   const handleSubmit = useCallback(
     (f) => (e) => {
+      textareaElem.current.focus();
       e.preventDefault();
       if (f.text.trim().length !== 0) {
         onSubmit({
@@ -37,6 +43,12 @@ const ChatRoom = (props) => {
   const textareaMaxHeight =
     maxNumTextreaLines * textareaLineHeight * textareaFontSize;
 
+  const textareaPaddingTop = 5;
+  const textareaPaddingBottom = 5;
+  const textareaPaddingLeft = 10;
+  const textareaPaddingRight = 10;
+  const textareaBorderRadius = textareaLineHeight * textareaFontSize;
+
   return (
     <div
       css={css`
@@ -52,9 +64,11 @@ const ChatRoom = (props) => {
           flex-shrink: 0;
           display: flex;
           justify-content: flex-end;
+          padding: 10px 7px;
+          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
         `}
       >
-        <X color="#424874" size={30} />
+        <X color={theme.color.primary} size={30} />
       </div>
       <div
         css={css`
@@ -62,6 +76,7 @@ const ChatRoom = (props) => {
           flex-shrink: 1;
           display: flex;
           flex-direction: column-reverse;
+          padding: 0 7px;
           overflow-y: auto;
         `}
       >
@@ -86,23 +101,20 @@ const ChatRoom = (props) => {
             >
               <p
                 css={css`
-                padding: 0.3rem 0.6rem;
-                border-radius: 0.5rem;
-                border-top-${
-                  evt.senderId === myId ? 'left' : 'right'
-                }-radius: 1rem;
-                border-bottom-${
-                  evt.senderId === myId ? 'left' : 'right'
-                }-radius: 1rem;
-                margin: 0.1rem;
-                margin-${evt.senderId === myId ? 'right' : 'left'}: 0.5rem;
-                background-color: ${
-                  evt.senderId === myId ? '#424874' : '#f4eeff'
-                };
-                font-size: 1rem;
-                color: ${evt.senderId === myId ? 'white' : 'black'};
-                white-space: pre-line;
-              `}
+                  padding-top: ${textareaPaddingTop}px;
+                  padding-bottom: ${textareaPaddingBottom}px;
+                  padding-left: ${textareaPaddingLeft}px;
+                  padding-right: ${textareaPaddingRight}px;
+                  border-radius: ${textareaBorderRadius}px;
+                  margin: 0;
+                  margin-top: 5px;
+                  background-color: ${evt.senderId === myId
+                    ? theme.color.primary
+                    : theme.color.secondary};
+                  font-size: ${textareaFontSize}px;
+                  color: ${evt.senderId === myId ? 'white' : 'black'};
+                  white-space: pre-line;
+                `}
               >
                 {evt.payload.message.payload.text}
               </p>
@@ -117,10 +129,11 @@ const ChatRoom = (props) => {
           flex-shrink: 0;
           display: flex;
           align-items: flex-end;
-          padding: 7px;
+          padding: 10px 7px;
         `}
       >
         <textarea
+          ref={textareaElem}
           rows={numTextreaLines}
           name="text"
           value={form.text}
@@ -131,9 +144,12 @@ const ChatRoom = (props) => {
             box-sizing: content-box;
             height: ${textareaHeight}px;
             max-height: ${textareaMaxHeight}px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: ${textareaBorderRadius}px;
+            background-color: ${theme.color.secondary};
             font-size: ${textareaFontSize}px;
             line-height: ${textareaLineHeight};
-            border-radius: 6px;
             resize: none;
           `}
         />
@@ -144,12 +160,12 @@ const ChatRoom = (props) => {
             justify-content: center;
             align-items: center;
             width: 50px;
-            height: 30px;
+            height: ${textareaLineHeight * textareaFontSize + 10}px;
             padding: 0;
             margin-left: 5px;
             border: none;
             border-radius: 6px;
-            background-color: #424874;
+            background-color: ${theme.color.primary};
             color: #ffffff;
             box-shadow: 0 0 1px 0 rgba(8, 11, 14, 0.06),
               0 6px 6px -1px rgba(8, 11, 14, 0.1);

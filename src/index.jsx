@@ -5,8 +5,16 @@ import ReactDOM from 'react-dom';
 import { Helmet } from 'react-helmet';
 import 'sanitize.css';
 import { Global, css } from '@emotion/core';
+import { ThemeProvider } from 'emotion-theming';
 
 import App from './components/App';
+
+const theme = {
+  color: {
+    primary: '#c86b85',
+    secondary: '#f5eee6',
+  },
+};
 
 ReactDOM.render(
   <>
@@ -15,6 +23,10 @@ ReactDOM.render(
     </Helmet>
     <Global
       styles={css`
+        *:focus {
+          outline: none;
+        }
+
         html,
         body,
         #react {
@@ -29,7 +41,9 @@ ReactDOM.render(
         }
       `}
     />
-    <App />
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </>,
   document.querySelector('#react'),
 );

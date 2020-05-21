@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Global, css } from '@emotion/core';
+import { useTheme } from 'emotion-theming';
 import { Loader } from 'react-feather';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,6 +10,8 @@ import ChatRoom from './ChatRoom';
 const { WS_URL = 'ws://192.168.0.32:8080' } = process.env;
 
 const App = () => {
+  const theme = useTheme();
+
   const storedMe = JSON.parse(window.localStorage.getItem('me'));
   const [me, setMe] = useState(
     storedMe || { genderKey: 'F', filter: { genderKey: 'A' } },
@@ -129,7 +132,8 @@ const App = () => {
           if (isPairing) {
             return (
               <Loader
-                size={100}
+                size={50}
+                color={theme.color.primary}
                 css={css`
                   animation: 1s linear 0s infinite spin;
                 `}

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { css } from '@emotion/core';
+import { useTheme } from 'emotion-theming';
 
 const genderKeys = ['M', 'F', 'A'];
 const genderTextByKey = {
@@ -11,6 +12,8 @@ const genderTextByKey = {
 
 const PairForm = (props) => {
   const { me, onChange, onSubmit } = props;
+
+  const theme = useTheme();
 
   const [form, setForm] = useState(me);
   const handleInputChange = useCallback((e) => {
@@ -74,7 +77,7 @@ const PairForm = (props) => {
                   padding: 10px;
                   border-radius: 10px;
                   box-shadow: ${key === form.genderKey
-                    ? 'inset 0 0 0 4px #1597ff, 0 15px 15px -10px rgba(0, 125, 225, 0.375)'
+                    ? `inset 0 0 0 4px ${theme.color.primary}, 0 15px 15px -10px ${theme.color.primary}60`
                     : 'none'};
                   font-size: 30px;
                 `}
@@ -119,7 +122,7 @@ const PairForm = (props) => {
                 padding: 10px;
                 border-radius: 10px;
                 box-shadow: ${key === form.filter.genderKey
-                  ? 'inset 0 0 0 4px #1597ff, 0 15px 15px -10px rgba(0, 125, 225, 0.375)'
+                  ? `inset 0 0 0 4px ${theme.color.primary}, 0 15px 15px -10px ${theme.color.primary}60`
                   : 'none'};
                 font-size: 30px;
               `}
@@ -154,7 +157,7 @@ const PairForm = (props) => {
           margin-top: 30px;
           border: none;
           border-radius: 6px;
-          background-color: #424874;
+          background-color: ${theme.color.primary};
           box-shadow: 0 0 1px 0 rgba(8, 11, 14, 0.06),
             0 6px 6px -1px rgba(8, 11, 14, 0.1);
           color: #ffffff;
