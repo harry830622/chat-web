@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import PairForm from './PairForm';
 import ChatRoom from './ChatRoom';
 
-const { WS_URL = 'ws://192.168.0.32:8080' } = process.env;
+const { WS_URL } = process.env;
 
 const App = () => {
   const theme = useTheme();

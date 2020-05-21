@@ -1,4 +1,6 @@
-const { BABEL_ENV } = process.env;
+const { NODE_ENV, BABEL_ENV } = process.env;
+
+const devPlugins = ['react-refresh/babel'];
 
 module.exports = {
   presets: [
@@ -19,6 +21,6 @@ module.exports = {
   ],
   plugins: [
     ['emotion', { sourceMap: BABEL_ENV === 'development' }],
-    'react-refresh/babel',
+    ...(NODE_ENV === 'development' ? devPlugins : []),
   ],
 };

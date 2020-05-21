@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -68,6 +69,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.EnvironmentPlugin({
+      WS_URL: 'ws://192.168.0.32:8080',
+    }),
     new HtmlPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, 'src/index.ejs'),
