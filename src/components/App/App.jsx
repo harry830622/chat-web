@@ -28,20 +28,15 @@ const App = () => {
     setIsPairing(true);
   }, []);
 
-  const [paired, setPaired] = useState(null);
-  const isPaired = !!paired;
+  const [pairedUser, setPairedUser] = useState(null);
+  const isPaired = !!pairedUser;
   const [sock, setSock] = useState(null);
+  const [mySockId, setMySockId] = useState(null);
+  const [pairedSockId, setPairedSockId] = useState(null);
   const [messageEvents, setMessageEvents] = useState([]);
   useEffect(() => {
     if (isPairing) {
       const newSock = new WebSocket(WS_URL);
-      newSock.id = uuidv4();
-      setSock((prev) => {
-        if (prev !== null) {
-          prev.close();
-        }
-        return newSock;
-      });
       newSock.onopen = () => {
         newSock.send(
           JSON.stringify({
@@ -52,13 +47,24 @@ const App = () => {
           }),
         );
       };
+      newSock.onclose = () => {
+        setIsPairing(false);
+        setPairedUser(null);
+        setSock(null);
+        setMySockId(null);
+        setPairedSockId(null);
+        setMessageEvents([]);
+        // Tell the user that the paired one leaves.
+      };
       newSock.onmessage = (e) => {
         const data = JSON.parse(e.data);
         switch (data.type) {
           case 'PAIRED': {
+            setSock(newSock);
+            setMySockId(data.payload.mySockId);
+            setPairedUser(data.payload.pairedUser);
+            setPairedSockId(data.payload.pairedSockId);
             setIsPairing(false);
-            setMe((prev) => ({ ...prev, id: data.payload.myId }));
-            setPaired(data.payload.paired);
             break;
           }
           case 'RECEIVED': {
@@ -79,8 +85,8 @@ const App = () => {
         const event = {
           id: uuidv4(),
           type: 'SEND',
-          senderId: me.id,
-          receiverId: paired.id,
+          senderSockId: mySockId,
+          receiverSockId: pairedSockId,
           payload: {
             message: {
               type: 'TEXT',
@@ -94,8 +100,13 @@ const App = () => {
         sock.send(JSON.stringify(event));
       }
     },
-    [sock?.id, me?.id, paired?.id],
+    [mySockId, pairedSockId],
   );
+  const handleChatRoomLeave = useCallback(() => {
+    if (sock !== null) {
+      sock.close();
+    }
+  }, [mySockId]);
 
   return (
     <>
@@ -124,8 +135,9 @@ const App = () => {
             return (
               <ChatRoom
                 messageEvents={messageEvents}
-                myId={me.id}
+                mySockId={mySockId}
                 onSubmit={handleChatRoomFormSubmit}
+                onLeave={handleChatRoomLeave}
               />
             );
           }

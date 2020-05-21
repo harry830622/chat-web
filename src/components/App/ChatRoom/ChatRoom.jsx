@@ -5,7 +5,7 @@ import { useTheme } from 'emotion-theming';
 import { ArrowUp, X } from 'react-feather';
 
 const ChatRoom = (props) => {
-  const { messageEvents, myId, onSubmit } = props;
+  const { messageEvents, mySockId, onSubmit, onLeave } = props;
 
   const theme = useTheme();
 
@@ -33,6 +33,10 @@ const ChatRoom = (props) => {
     },
     [onSubmit],
   );
+
+  const handleCloseBtnClick = useCallback(() => {
+    onLeave();
+  }, [onLeave]);
 
   const textareaFontSize = 20;
   const maxNumTextreaLines = 5;
@@ -68,7 +72,11 @@ const ChatRoom = (props) => {
           box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
         `}
       >
-        <X color={theme.color.primary} size={30} />
+        <X
+          color={theme.color.primary}
+          size={30}
+          onClick={handleCloseBtnClick}
+        />
       </div>
       <div
         css={css`
@@ -94,7 +102,7 @@ const ChatRoom = (props) => {
                 flex-grow: 0;
                 flex-shrink: 0;
                 display: flex;
-                flex-direction: ${evt.senderId === myId
+                flex-direction: ${evt.senderSockId === mySockId
                   ? 'row-reverse'
                   : 'row'};
               `}
@@ -108,11 +116,11 @@ const ChatRoom = (props) => {
                   border-radius: ${textareaBorderRadius}px;
                   margin: 0;
                   margin-top: 5px;
-                  background-color: ${evt.senderId === myId
+                  background-color: ${evt.senderSockId === mySockId
                     ? theme.color.primary
                     : theme.color.secondary};
                   font-size: ${textareaFontSize}px;
-                  color: ${evt.senderId === myId ? 'white' : 'black'};
+                  color: ${evt.senderSockId === mySockId ? 'white' : 'black'};
                   white-space: pre-line;
                 `}
               >
@@ -185,8 +193,9 @@ ChatRoom.propTypes = {
       type: PropTypes.string.isRequired,
     }),
   ).isRequired,
-  myId: PropTypes.string.isRequired,
+  mySockId: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  onLeave: PropTypes.func.isRequired,
 };
 
 export default ChatRoom;

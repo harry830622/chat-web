@@ -70,7 +70,7 @@ module.exports = {
   },
   plugins: [
     new webpack.EnvironmentPlugin({
-      WS_URL: 'ws://192.168.0.32:8080',
+      WS_URL: 'ws://192.168.0.32:3000',
     }),
     new HtmlPlugin({
       filename: 'index.html',
